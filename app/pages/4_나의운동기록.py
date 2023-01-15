@@ -4,20 +4,23 @@ from streamlit_echarts import st_echarts
 from datetime import datetime
 from PIL import Image
 
-# DB 에서 받아와야 할 변수들?
-excercise_count = 0
-calorie = 0
-
 
 my_name = st.session_state['name']
 
 colored_header(
-    label=f"{my_name} 님의 오늘 운동 기록",
+    label=f"{my_name} 님의 운동 기록",
     description=datetime.today().strftime("%Y 년 %m 월 %d 일"),
     color_name="violet-70",
 )
 
-# DB 에서 필요한 데이터 가져와서 넣어주면 될듯
+# DB 에서 받아와야 할 변수들?
+excercise_count = 0
+calorie = 0
+
+st.write(f"운동 일수 : {excercise_count} 일")
+st.write(f"오늘의 소모 칼로리 : {calorie} kcal")
+
+
 hours = [
     "첫째주",
     "둘째주",
@@ -67,8 +70,9 @@ data = [
 data = [[d[1], d[0], d[2] if d[2] != 0 else "-"] for d in data]
 
 option = {
+    "title": {"text": "운동 일수 히트맵"},
     "tooltip": {"position": "top"},
-    "grid": {"height": "50%", "top": "20%"},
+    "grid": {"height": "50%", "top": "10%"},
     "xAxis": {"type": "category", "data": hours, "splitArea": {"show": True}},
     "yAxis": {"type": "category", "data": days, "splitArea": {"show": True}},
     "series": [
