@@ -26,9 +26,7 @@ with col1:
         for u in users:
             if u.user_id == userid:
                 if u.user_password == pw:
-                    # TODO : 사용자의 암호화된 비밀번호를 다른 페이지에서도 접근가능하도록 설정
-                    hashed_passwords = u.user_hash
-                    user_info = {"userid" : userid, "nickname": u.nickname, "pw": hashed_passwords}
+                    user_info = {"userid" : userid, "nickname": u.nickname, "hashed_pw": u.user_hash}
                     set_to_local_storage(user_info)  # Local Storage 에 정보 저장
                     time.sleep(0.5)
                     switch_page("운동선택하기")  # 로그인 하면 운동 선택 페이지로 이동

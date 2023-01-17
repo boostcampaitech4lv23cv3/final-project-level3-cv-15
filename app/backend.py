@@ -5,6 +5,8 @@ from uuid import UUID, uuid4
 from typing import List, Union, Optional, Dict, Any
 from datetime import datetime
 from database import engineconn, User, Exercise
+import uvicorn
+import pandas as pd
 
 app = FastAPI()
 
@@ -21,7 +23,6 @@ class ExerciseItem(BaseModel):
     user_hash : str
     type : str
     date : datetime
-    count : int
     perfect : int
     good : int
     miss : int
@@ -40,3 +41,39 @@ async def register_user(item: UserItem):
     session.add(new_user)
     session.commit()
     return new_user
+
+@app.get("/exercises")
+def get_exercise():
+    example = session.query(Exercise).all()
+    return example
+
+@app.post("/exercises")
+async def add_exercise(item: ExerciseItem):
+    new_exercise = Exercise(
+                user_hash=item.user_hash, 
+                type=item.type,
+                date=item.date, 
+                perfect=item.perfect, 
+                good=item.good,
+                miss=item.miss)
+    session.add(new_exercise)
+    session.commit()
+    return new_exercise
+
+def user_exercise_info(user_hash, date):
+    sql = f"select type, perfect, good, miss from exercise where user_hash='{user_hash}' and date='{date}'"
+    data = pd.read_sql(sql=sql, con=engine.engine)
+    return data
+
+def user_exercise_day(user_hash):
+    sql = f"select count(distinct date) from exercise where user_hash='{user_hash}'"
+    data = pd.read_sql(sql=sql, con=engine.engine)
+    return data
+
+def user_calendar_data(user_hash):
+    sql = f"select date_format(date, '%Y-%m-%d'), count(date) from exercise where user_hash='{user_hash}' group by date"
+    data = pd.read_sql(sql=sql, con=engine.engine)
+    return data
+
+if __name__ == '__main__':
+    uvicorn.run(app, host="0.0.0.0", port=8000)

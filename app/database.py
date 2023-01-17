@@ -30,7 +30,6 @@ class Exercise(Base):
     user_hash = Column(VARCHAR, nullable=False, primary_key=True)
     type = Column(VARCHAR, nullable=False, primary_key=True)
     date = Column(DATETIME, nullable=False, primary_key=True)
-    count = Column(INT, nullable=False)
     perfect = Column(INT, nullable=False)
     good = Column(INT, nullable=False)
     miss = Column(INT, nullable=False)

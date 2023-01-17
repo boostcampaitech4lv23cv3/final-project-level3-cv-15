@@ -6,7 +6,7 @@ from PIL import Image
 from localstorage import remove_from_local_storage, get_from_local_storage
 from streamlit_extras.switch_page_button import switch_page
 import time
-
+from backend import user_exercise_info, user_exercise_day, user_calendar_data
 
 user_info = get_from_local_storage()  # Login 된 사용자 정보 받아오기
 
@@ -25,105 +25,57 @@ colored_header(
     color_name="violet-70",
 )
 
-# DB 에서 받아와야 할 변수들?
-excercise_count = 0
-calorie = 0
+pd_user_exercise = user_exercise_info(user_info['hashed_pw'], datetime.today().date())
+excercise_count = user_exercise_day(user_info['hashed_pw']).values[0][0]
+# calorie = 0
 
 st.write(f"운동 일수 : {excercise_count} 일")
-st.write(f"오늘의 소모 칼로리 : {calorie} kcal")
+# st.write(f"오늘의 소모 칼로리 : {calorie} kcal")
+st.table(pd_user_exercise)
 
-
-hours = [
-    "첫째주",
-    "둘째주",
-    "셋째주",
-    "넷째주",
-]
-days = [
-    "Saturday",
-    "Friday",
-    "Thursday",
-    "Wednesday",
-    "Tuesday",
-    "Monday",
-    "Sunday",
-]
-
-data = [
-    [0, 0, 5],
-    [0, 1, 1],
-    [0, 2, 0],
-    [0, 3, 0],
-    [1, 0, 7],
-    [1, 1, 0],
-    [1, 2, 0],
-    [1, 3, 0],
-    [2, 0, 1],
-    [2, 1, 1],
-    [2, 2, 0],
-    [2, 3, 0],
-    [3, 0, 7],
-    [3, 1, 3],
-    [3, 2, 0],
-    [3, 3, 0],
-    [4, 0, 1],
-    [4, 1, 3],
-    [4, 2, 0],
-    [4, 3, 0],
-    [5, 0, 2],
-    [5, 1, 1],
-    [5, 2, 0],
-    [5, 3, 3],
-    [6, 0, 1],
-    [6, 1, 0],
-    [6, 2, 0],
-    [6, 3, 0],
-]
-data = [[d[1], d[0], d[2] if d[2] != 0 else "-"] for d in data]
+data =  user_calendar_data(user_info['hashed_pw']).values.tolist()
 
 option = {
-    "title": {"text": "운동 일수 히트맵"},
-    "tooltip": {"position": "top"},
-    "grid": {"height": "50%", "top": "10%"},
-    "xAxis": {"type": "category", "data": hours, "splitArea": {"show": True}},
-    "yAxis": {"type": "category", "data": days, "splitArea": {"show": True}},
-    "series": [
-        {
-            "name": "Work Day",
-            "type": "heatmap",
-            "data": data,
-            "emphasis": {
-                "itemStyle": {"shadowBlur": 10, "shadowColor": "rgba(0, 0, 0, 0.5)"}
-            },
-        }
-    ],
-}
-st_echarts(option, height="500px")
-
-option = {
-    "title": {"text": "운동그래프"},
-    "legend": {"data": ["운동그래프"]},
-    "radar": {
-        "indicator": [
-            {"name": "팔운동", "max": 6500},
-            {"name": "다리운동", "max": 16000},
-            {"name": "숨쉬기운동", "max": 30000},
-            {"name": "걷기운동", "max": 38000},
-            {"name": "머리운동", "max": 52000},
-            {"name": "그냥운동", "max": 25000},
+  "title": {
+    "top": 50,
+    "left": 'center',
+    "text": 'Daily Exercise Count'
+  },
+  "tooltip": {},
+  "visualMap": {
+    "min": 0,
+    "max": 6,
+    "type": 'piecewise',
+    "orient": 'horizontal',
+    "left": 'center',
+    "top": 65,
+    "target": {
+      "inRange": {
+        "color": [
+          "#ffffff",
+          "#8acaf2",
+          "#5caaed",
         ]
+      }
     },
-    "series": [
-        {
-            "name": "운동그래프",
-            "type": "radar",
-            "data": [
-                {
-                    "value": [4200, 3000, 20000, 35000, 50000, 18000],
-                    "name": "운동그래프",
-                },
-            ],
-        }
-    ],
+    "show": False,
+    "splitNumber": 7,
+  },
+  "calendar": {
+    "top": 120,
+    "left": 30,
+    "right": 30,
+    "cellSize": ['auto', 13],
+    "range": '2023',
+    "itemStyle": {
+      "borderWidth": 0.5
+    },
+    "yearLabel": { "show": False }
+  },
+  "series": {
+    "type": 'heatmap',
+    "coordinateSystem": 'calendar',
+    "data": data,
+  },
 }
-st_echarts(option, height="500px")
+st_echarts(option)
