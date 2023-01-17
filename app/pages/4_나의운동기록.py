@@ -3,12 +3,24 @@ from streamlit_extras.colored_header import colored_header
 from streamlit_echarts import st_echarts
 from datetime import datetime
 from PIL import Image
+from localstorage import remove_from_local_storage, get_from_local_storage
+from streamlit_extras.switch_page_button import switch_page
+import time
 
 
-my_name = st.session_state['name']
+user_info = get_from_local_storage()  # Login 된 사용자 정보 받아오기
+
+# --- Logout 하면 로그인 화면으로 되돌아가기 ---
+st.sidebar.title(f"Welcome {user_info['nickname']}")
+
+if st.sidebar.button("Logout"):
+    remove_from_local_storage()
+    time.sleep(0.5)
+    switch_page("frontend")
+
 
 colored_header(
-    label=f"{my_name} 님의 운동 기록",
+    label=f"{user_info['nickname']} 님의 운동 기록",
     description=datetime.today().strftime("%Y 년 %m 월 %d 일"),
     color_name="violet-70",
 )

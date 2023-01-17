@@ -1,19 +1,18 @@
 import streamlit as st
 from streamlit_extras.switch_page_button import switch_page
-import extra_streamlit_components as stx
+from localstorage import remove_from_local_storage, get_from_local_storage
+import time
+
+
+user_info = get_from_local_storage()  # Login 된 사용자 정보 받아오기
 
 # --- Logout 하면 로그인 화면으로 되돌아가기 ---
-st.sidebar.title(f"Welcome {st.session_state['name']}")
-cookie_manager = stx.CookieManager()
+st.sidebar.title(f"Welcome {user_info['nickname']}")
 
-if st.session_state['authentication_status']:
-    if st.sidebar.button("Logout"):
-        cookie_manager.delete("ck_name")
-        st.session_state['logout'] = True
-        st.session_state['name'] = None
-        st.session_state['username'] = None
-        st.session_state['authentication_status'] = None
-        switch_page("frontend")
+if st.sidebar.button("Logout"):
+    remove_from_local_storage()
+    time.sleep(0.5)
+    switch_page("frontend")
 
 
 # --- 운동 사진 ---
