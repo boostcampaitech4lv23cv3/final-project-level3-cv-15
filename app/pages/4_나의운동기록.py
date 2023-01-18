@@ -44,7 +44,7 @@ st.write(f"운동 일수 : {excercise_count} 일")
 # st.write(f"오늘의 소모 칼로리 : {calorie} kcal")
 st.table(pd_user_exercise)
 
-data =  user_calendar_data(user_info['hashed_pw']).values.tolist()
+data =  user_calendar_data(user_info['hashed_pw'])
 
 option = {
   "title": {

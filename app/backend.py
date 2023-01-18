@@ -76,9 +76,10 @@ def user_exercise_day(user_hash):
     return data
 
 def user_calendar_data(user_hash):
-    sql = f"select date_format(date, '%%Y-%%m-%%d'), count(date) from exercise where user_hash='{user_hash}' group by date"
+    sql = f"select date, count(date) from exercise where user_hash='{user_hash}' group by date"
     data = pd.read_sql(sql=sql, con=engine.engine)
-    return data
+    return [[date.strftime('%Y-%m-%d'), count] for date, count in zip(data['date'],data['count(date)'])]
+
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=8000)
