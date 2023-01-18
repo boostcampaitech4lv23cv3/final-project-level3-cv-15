@@ -15,3 +15,14 @@ def get_from_local_storage():
         f"JSON.parse(localStorage.getItem('user'));"
     )
     return v
+
+def set_exercise_num(i):
+    st_javascript(
+        f"localStorage.setItem('exercise', {i});"
+    )
+
+def get_exercise_num():
+    v = st_javascript(
+        f"localStorage.getItem('exercise');"
+    )
+    return v
