@@ -6,6 +6,11 @@ from backend import user_info
 import time
 from localstorage import set_to_local_storage
 
+st.set_page_config(  # Alternate names: setup_page, page, layout
+	layout="wide",  # Can be "centered" or "wide". In the future also "dashboard", etc.
+	page_title=None,  # String or None. Strings get appended with "• Streamlit". 
+)
+
 # --- LINK TO THE CSS FILE ---
 with open('style.css')as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html = True)

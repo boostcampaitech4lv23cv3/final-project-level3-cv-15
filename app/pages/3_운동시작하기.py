@@ -4,6 +4,16 @@ from localstorage import remove_from_local_storage, get_from_local_storage
 import cv2
 import time
 
+# --- CSS
+
+styl = f"""
+    <style>
+        .css-wjbhl0.e1fqkh3o9 > li:nth-child(1){{
+            display: none;
+        }}
+    </style>
+    """
+st.markdown(styl, unsafe_allow_html=True)
 
 user_info = get_from_local_storage()  # Login 된 사용자 정보 받아오기
 
