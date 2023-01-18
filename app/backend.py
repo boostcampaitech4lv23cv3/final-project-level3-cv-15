@@ -60,6 +60,11 @@ async def add_exercise(item: ExerciseItem):
     session.commit()
     return new_exercise
 
+def user_info(user_id):
+    sql = f"select * from user where user_id='{user_id}'"
+    data = pd.read_sql(sql=sql, con=engine.engine)
+    return data
+
 def user_exercise_info(user_hash, date):
     sql = f"select type, perfect, good, miss from exercise where user_hash='{user_hash}' and date='{date}'"
     data = pd.read_sql(sql=sql, con=engine.engine)
@@ -71,7 +76,7 @@ def user_exercise_day(user_hash):
     return data
 
 def user_calendar_data(user_hash):
-    sql = f"select date_format(date, '%Y-%m-%d'), count(date) from exercise where user_hash='{user_hash}' group by date"
+    sql = f"select date_format(date, '%%Y-%%m-%%d'), count(date) from exercise where user_hash='{user_hash}' group by date"
     data = pd.read_sql(sql=sql, con=engine.engine)
     return data
 
