@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_extras.switch_page_button import switch_page
 from localstorage import remove_from_local_storage, get_from_local_storage, set_exercise_num
 import time
+import asyncio
 
 st.set_page_config(  # Alternate names: setup_page, page, layout
 	layout="wide",  # Can be "centered" or "wide". In the future also "dashboard", etc.
@@ -39,8 +40,7 @@ with col1:
     st.image("img/1.jpg")
     exercise_button = st.button("운동 시작하기1")
     if exercise_button:
-        set_exercise_num(0)
-        time.sleep(0.5)
+        asyncio.run(set_exercise_num(0))
         switch_page("운동시작하기")
 
 with col2:
@@ -48,8 +48,7 @@ with col2:
     st.image("img/1.jpg")
     exercise_button = st.button("운동 시작하기2")
     if exercise_button:
-        set_exercise_num(1)
-        time.sleep(0.5)
+        asyncio.run(set_exercise_num(1))
         switch_page("운동시작하기")
 
 with col3:
@@ -57,8 +56,7 @@ with col3:
     st.image("img/1.jpg")
     exercise_button = st.button("운동 시작하기3")
     if exercise_button:
-        set_exercise_num(2)
-        time.sleep(0.5)
+        asyncio.run(set_exercise_num(2))
         switch_page("운동시작하기")
 
 with c1:
@@ -66,8 +64,7 @@ with c1:
     st.image("img/1.jpg")
     exercise_button = st.button("운동 시작하기4")
     if exercise_button:
-        set_exercise_num(3)
-        time.sleep(0.5)
+        asyncio.run(set_exercise_num(3))
         switch_page("운동시작하기")
 
 with c2:
@@ -75,8 +72,7 @@ with c2:
     st.image("img/1.jpg")
     exercise_button = st.button("운동 시작하기5")
     if exercise_button:
-        set_exercise_num(4)
-        time.sleep(0.5)
+        asyncio.run(set_exercise_num(4))
         switch_page("운동시작하기")
 
 with c3:
@@ -84,6 +80,5 @@ with c3:
     st.image("img/1.jpg")
     exercise_button = st.button("운동 시작하기6")
     if exercise_button:
-        set_exercise_num(5)
-        time.sleep(0.5)
+        asyncio.run(set_exercise_num(5))
         switch_page("운동시작하기")

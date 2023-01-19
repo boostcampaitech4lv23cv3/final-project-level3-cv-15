@@ -3,6 +3,7 @@ import streamlit as st
 from localstorage import remove_from_local_storage, get_from_local_storage, get_exercise_num
 import cv2
 import time
+import asyncio
 
 exercise_list = ['스탠딩 사이드 크런치', '카트라이더', '닌자머스트다이', '롤토체스', '달리기', '숨쉬기']
 
@@ -23,7 +24,7 @@ styl = f"""
 st.markdown(styl, unsafe_allow_html=True)
 
 user_info = get_from_local_storage()  # Login 된 사용자 정보 받아오기
-ex_num = int(get_exercise_num())  # 운동 정보 가져오기
+ex_num = int(asyncio.run(get_exercise_num()))  # 운동 정보 가져오기
 
 # --- 운동 종류
 st.title(f"{exercise_list[ex_num]} 운동 시작!")

@@ -11,3 +11,4 @@ uvicorn==0.15.0
 streamlit-webrtc==0.44.2
 sqlalchemy==1.4.46
 pymysql==1.0.2
+asyncio==3.4.3
