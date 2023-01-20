@@ -1,9 +1,11 @@
 from streamlit_extras.switch_page_button import switch_page
 import streamlit as st
 from localstorage import remove_from_local_storage, get_from_local_storage, get_exercise_num
-import cv2
 import time
 import asyncio
+from streamlit_webrtc import webrtc_streamer
+from streamlit_webrtc import webrtc_streamer, WebRtcMode, RTCConfiguration
+import av
 
 exercise_list = ['스탠딩 사이드 크런치', '카트라이더', '닌자머스트다이', '롤토체스', '달리기', '숨쉬기']
 
@@ -41,14 +43,20 @@ if st.sidebar.button("Logout"):
 
 st.title("Pose Estimation with Camera")
 
+RTC_CONFIGURATION = RTCConfiguration(
+    {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+)
 
-# --- Camera
-cap = cv2.VideoCapture(0)
-frameST = st.empty()
-
-stopper_started = False
-while True:
-    success, frame = cap.read()
-    if not success: break
-
-    frameST.image(frame, channels="BGR")
+class VideoProcessor:
+    def recv(self, frame):
+        img = frame.to_ndarray(format="bgr24")
+        return av.VideoFrame.from_ndarray(img, format="bgr24")
+    
+webrtc_ctx = webrtc_streamer(
+    key="pose-estimation",
+    mode=WebRtcMode.SENDRECV,
+    rtc_configuration=RTC_CONFIGURATION,
+    media_stream_constraints={"video": True, "audio": False},
+    video_processor_factory=VideoProcessor,
+    async_processing=True,
+)
