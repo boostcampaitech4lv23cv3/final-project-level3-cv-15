@@ -5,6 +5,8 @@ import requests
 from backend import user_info
 import time
 from localstorage import set_to_local_storage
+import streamlit.components.v1 as components
+import time
 
 st.set_page_config(  # Alternate names: setup_page, page, layout
 	layout="wide",  # Can be "centered" or "wide". In the future also "dashboard", etc.
@@ -32,7 +34,7 @@ with col1:
             if user_check["user_password"][0]==pw:
                 user_info = {"userid" : userid, "nickname": user_check["nickname"][0], "hashed_pw": user_check["user_hash"][0]}
                 set_to_local_storage(user_info) # Local Storage 에 정보 저장
-                time.sleep(0.5)
+                time.sleep(0.3)
                 switch_page("운동선택하기") # 로그인 하면 운동 선택 페이지로 이동
             else: # 해당 id에 일치하는 비밀번호가 아닌 경우
                 st.warning("Incorrect password.", icon="⚠️")
@@ -60,4 +62,12 @@ with col2:
         if len(user_info(userid)): # 기존에 DB에 존재하는 user_id인 경우
             st.warning("Identical ID already exists.", icon="⚠️")
         else:
-            requests.post('http://127.0.0.1:8000/users', json=new_user)
+            #requests.post('http://127.0.0.1:8000/users', json=new_user)
+            html_string = '''
+            <script>
+            alert("Signup Success!");
+            </script>
+            '''
+            components.html(html_string)
+            time.sleep(0.3)
+            st.experimental_rerun()

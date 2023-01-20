@@ -11,10 +11,11 @@ def remove_from_local_storage():
         f"localStorage.removeItem('user');"
     )
 
-def get_from_local_storage():
+async def get_from_local_storage():
     v = st_javascript(
         f"JSON.parse(localStorage.getItem('user'));"
     )
+    await asyncio.sleep(0.3)
     return v
 
 async def set_exercise_num(i):
@@ -27,5 +28,5 @@ async def get_exercise_num():
     v = st_javascript(
         f"localStorage.getItem('exercise');"
     )
-    await asyncio.sleep(0.5)
+    await asyncio.sleep(0.3)
     return v

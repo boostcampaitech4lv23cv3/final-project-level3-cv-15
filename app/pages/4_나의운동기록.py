@@ -7,6 +7,7 @@ from localstorage import remove_from_local_storage, get_from_local_storage
 from streamlit_extras.switch_page_button import switch_page
 import time
 from backend import user_exercise_info, user_exercise_day, user_calendar_data
+import asyncio
 
 # --- CSS
 
@@ -15,18 +16,22 @@ styl = f"""
         .css-wjbhl0.e1fqkh3o9 > li:nth-child(1){{
             display: none;
         }}
+        .css-hied5v.e1fqkh3o9 > li:nth-child(1){{
+            display: none;
+        }}
     </style>
     """
+
 st.markdown(styl, unsafe_allow_html=True)
 
-user_info = get_from_local_storage()  # Login 된 사용자 정보 받아오기
+user_info = asyncio.run(get_from_local_storage())  # Login 된 사용자 정보 받아오기
 
 # --- Logout 하면 로그인 화면으로 되돌아가기 ---
 st.sidebar.title(f"Welcome {user_info['nickname']}")
 
 if st.sidebar.button("Logout"):
     remove_from_local_storage()
-    time.sleep(0.5)
+    time.sleep(0.3)
     switch_page("frontend")
 
 

@@ -21,11 +21,14 @@ styl = f"""
         .css-wjbhl0.e1fqkh3o9 > li:nth-child(1){{
             display: none;
         }}
+        .css-hied5v.e1fqkh3o9 > li:nth-child(1){{
+            display: none;
+        }}
     </style>
     """
 st.markdown(styl, unsafe_allow_html=True)
 
-user_info = get_from_local_storage()  # Login 된 사용자 정보 받아오기
+user_info = asyncio.run(get_from_local_storage())  # Login 된 사용자 정보 받아오기
 ex_num = int(asyncio.run(get_exercise_num()))  # 운동 정보 가져오기
 
 # --- 운동 종류
@@ -36,7 +39,7 @@ st.sidebar.title(f"Welcome {user_info['nickname']}")
 
 if st.sidebar.button("Logout"):
     remove_from_local_storage()
-    time.sleep(0.5)
+    time.sleep(0.3)
     switch_page("frontend")
 
 
