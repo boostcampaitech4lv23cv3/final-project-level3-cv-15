@@ -35,7 +35,7 @@ with col1:
                 user_info = {"userid" : userid, "nickname": user_check["nickname"][0], "hashed_pw": user_check["user_hash"][0]}
                 set_to_local_storage(user_info) # Local Storage 에 정보 저장
                 time.sleep(0.3)
-                switch_page("운동선택하기") # 로그인 하면 운동 선택 페이지로 이동
+                switch_page("운동 선택하기") # 로그인 하면 운동 선택 페이지로 이동
             else: # 해당 id에 일치하는 비밀번호가 아닌 경우
                 st.warning("Incorrect password.", icon="⚠️")
         else: # 존재하지 않는 user_id인 경우

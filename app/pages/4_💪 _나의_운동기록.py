@@ -9,22 +9,32 @@ import time
 from backend import user_exercise_info, user_exercise_day, user_calendar_data
 import asyncio
 
+user_info = asyncio.run(get_from_local_storage()) # Login 된 사용자 정보 받아오기
+
+st.title(f"💪 {user_info['nickname']} 님의 운동 기록")    
+st.write(
+    f'<hr style="background-color: #DAE1E7; margin-top: 0;'
+    ' margin-bottom: 0; height: px; border: none; border-radius: 3px;">',
+    unsafe_allow_html=True,
+)
+st.caption(datetime.today().strftime("%Y 년 %m 월 %d 일"))
+
 # --- CSS
-
-styl = f"""
-    <style>
-        .css-wjbhl0.e1fqkh3o9 > li:nth-child(1){{
+style = """
+        .css-wjbhl0.e1fqkh3o9 > li:nth-child(1){
             display: none;
-        }}
-        .css-hied5v.e1fqkh3o9 > li:nth-child(1){{
+        }
+        .css-hied5v.e1fqkh3o9 > li:nth-child(1){
             display: none;
-        }}
-    </style>
+        }
+        .css-k1vhr4.egzxvld3{
+            background-color: #9FADC6;
+        }
+        .css-6qob1r.e1fqkh3o3{
+            background-color: #DAE1E7;
+        }
     """
-
-st.markdown(styl, unsafe_allow_html=True)
-
-user_info = asyncio.run(get_from_local_storage())  # Login 된 사용자 정보 받아오기
+st.markdown(f"<style>{style}</style>", unsafe_allow_html=True)
 
 # --- Logout 하면 로그인 화면으로 되돌아가기 ---
 st.sidebar.title(f"Welcome {user_info['nickname']}")
@@ -33,13 +43,6 @@ if st.sidebar.button("Logout"):
     remove_from_local_storage()
     time.sleep(0.3)
     switch_page("frontend")
-
-
-colored_header(
-    label=f"{user_info['nickname']} 님의 운동 기록",
-    description=datetime.today().strftime("%Y 년 %m 월 %d 일"),
-    color_name="violet-70",
-)
 
 pd_user_exercise = user_exercise_info(user_info['hashed_pw'], datetime.today().date())
 excercise_count = user_exercise_day(user_info['hashed_pw']).values[0][0]
