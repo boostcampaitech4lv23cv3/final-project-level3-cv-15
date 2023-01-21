@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_extras.colored_header import colored_header
 from streamlit_echarts import st_echarts
-from datetime import datetime
+from datetime import datetime, date
 from PIL import Image
 from localstorage import remove_from_local_storage, get_from_local_storage
 from streamlit_extras.switch_page_button import switch_page
@@ -18,6 +18,7 @@ st.write(
     unsafe_allow_html=True,
 )
 st.caption(datetime.today().strftime("%Y 년 %m 월 %d 일"))
+
 
 # --- CSS
 style = """
@@ -44,7 +45,11 @@ if st.sidebar.button("Logout"):
     time.sleep(0.3)
     switch_page("frontend")
 
-pd_user_exercise = user_exercise_info(user_info['hashed_pw'], datetime.today().date())
+work_date = st.date_input(  # 운동 날짜 선택하기, default : 오늘 날짜
+  "운동 날짜 선택",
+  date.today())
+
+pd_user_exercise = user_exercise_info(user_info['hashed_pw'], work_date)
 excercise_count = user_exercise_day(user_info['hashed_pw']).values[0][0]
 # calorie = 0
 

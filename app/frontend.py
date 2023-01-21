@@ -62,7 +62,7 @@ with col2:
         if len(user_info(userid)): # 기존에 DB에 존재하는 user_id인 경우
             st.warning("Identical ID already exists.", icon="⚠️")
         else:
-            #requests.post('http://127.0.0.1:8000/users', json=new_user)
+            requests.post('http://127.0.0.1:8000/users', json=new_user)
             html_string = '''
             <script>
             alert("Signup Success!");
