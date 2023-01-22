@@ -55,11 +55,75 @@ excercise_count = user_exercise_day(user_info['hashed_pw']).values[0][0]
 
 st.write(f"운동 일수 : {excercise_count} 일")
 # st.write(f"오늘의 소모 칼로리 : {calorie} kcal")
-st.table(pd_user_exercise)
+
+
+option1 = {
+  "tooltip": {
+    "trigger": 'axis',
+    "axisPointer": {
+      "type": 'shadow'
+    }
+  },
+  "legend": {
+    "data": ['Perfect', 'Good', 'Miss']
+  },
+  "toolbox": {
+    "show": True,
+    "orient": 'vertical',
+    "left": 'right',
+    "top": 'center',
+    "feature": {
+      "dataView": { "show": True, "readOnly": True },
+      "mark": { "show": True },
+      "magicType": { "show": True, "type": ['line', 'bar'] },
+      "saveAsImage": { "show": True }
+    }
+  },
+  "xAxis": [
+    {
+      "type": 'category',
+      "axisTick": { "show": False },
+      "data": pd_user_exercise["type"].values.tolist()
+    }
+  ],
+  "yAxis": [
+    {
+      "type": 'value'
+    }
+  ],
+  "series": [
+    {
+      "name": 'Perfect',
+      "type": 'bar',
+      "barGap": 0,
+      "emphasis": {
+        "focus": 'series'
+      },
+      "data": pd_user_exercise["perfect"].values.tolist()
+    },
+    {
+      "name": 'Good',
+      "type": 'bar',
+      "emphasis": {
+        "focus": 'series'
+      },
+      "data": pd_user_exercise["good"].values.tolist()
+    },
+    {
+      "name": 'Miss',
+      "type": 'bar',
+      "emphasis": {
+        "focus": 'series'
+      },
+      "data": pd_user_exercise["miss"].values.tolist()
+    }
+  ]
+}
+st_echarts(option1)
 
 data =  user_calendar_data(user_info['hashed_pw'])
 
-option = {
+option2 = {
   "title": {
     "top": 50,
     "left": 'center',
@@ -102,4 +166,4 @@ option = {
     "data": data,
   },
 }
-st_echarts(option)
+st_echarts(option2)
