@@ -19,8 +19,14 @@ pose = mp_pose.Pose(
 
 # initialize
 temp_dict = {}
-for i in range(33):
+for i in range(35):
     temp_dict[i] = dict()
+    # temp_dict[33], temp_dict[34] = 지면과 각도 구하기위한 벡터
+
+temp_dict[33]['x'] = 1
+temp_dict[33]['y'] = 0
+temp_dict[34]['x'] = 2
+temp_dict[34]['y'] = 0
 
 right_action = False
 left_action = False 
@@ -32,11 +38,16 @@ A_count = 0
 B_count = 0
 C_count = 0
 state = 0
+count = 0
 
-num_exercise = 1    # 0: side lunge, 1: shoulder press, 2: lying leg raises, 3: side lateral raise
-                    # 4: standing side crunch(?) 5: push up
+# 운동 선택
+# 0: side lunge, 1: shoulder press, 2: lying leg raises, 3: side lateral raise
+# 4: standing side crunch(?) 5: push up
+num_exercise = 3
+frame_based = 0
 
 
+# 각각 운동에서 사용할 global 변수들 초기화
 if num_exercise == 0:
     min_right = 180
     min_left = 180
@@ -47,7 +58,17 @@ elif num_exercise == 1:
     min_left = 125
     min_left2 = 125
 
+elif num_exercise == 2:
+    min_right = 180
+    min_right2 = 0
+    count = 0
 
+elif num_exercise == 3:
+    min_right = 75
+    min_left = 75
+    min_right2 = 0
+    count = 0
+    
 
 def find_angles(angle_order, num, default_angles):
     """
@@ -59,6 +80,8 @@ def find_angles(angle_order, num, default_angles):
         output :  float (angles) 0~180
     """
 
+    # print("num :", num)
+    # print("len : ", len(angle_order))
     assert num == len(angle_order)
 
     angle_list = []
@@ -89,12 +112,19 @@ def find_angles(angle_order, num, default_angles):
     return angle_list
 
 def print_score():
+    """
+        print Perfect/ Good/ Miss scores
+    """
+
     global A_count
     global B_count
     global C_count
     print("Perfect : ", A_count, "Good : ", B_count, "Miss : ", C_count)
 
 def side_lunge():
+    """
+        Exercise for side lunge process is defined
+    """
     global A_count
     global B_count
     global C_count
@@ -134,6 +164,9 @@ def side_lunge():
 
 
 def shoulder_press():
+    """
+        Exercise for side shoulder press is defined
+    """
     global A_count
     global B_count
     global C_count
@@ -189,25 +222,113 @@ def shoulder_press():
 
 
 def lying_leg_raise():
+    """
+        Exercise for lying leg raise process is defined
+    """
     global A_count
     global B_count
     global C_count
     global state
+    global min_right
+    global min_right2   # 더 많으면
+    global count
 
-    print("왼쪽이나 오른쪽으로 서 주세요")
-
+    # print("카메라에 몸의 왼쪽이나 오른쪽이 보이게 누워주세요")
+    angle_order = (((33,34),(12,24)),((24,12),(24,26)),((26,24),(26,28)))  # 33, 34는 지면과 벡터
+    angle_x_axis, angle_hip, angle_knee = find_angles(angle_order, 3, default_angles=[180, 180, 75])
     # state 0 : 시작자세
-    # state 1 : 왼쪽 기준으로 하면 된다.
+    # state 1 : 오른쪽 기준으로
+
+    if state == 0 and angle_x_axis > 150 and angle_hip > 150\
+        and angle_knee > 120:
+        state = 1
     
+    if state == 1:
+        if angle_hip < 120:
+            state = 2
     
+    if state == 2:
+        min_right = min(min_right, angle_hip)
+        if angle_knee > 140:
+            min_right2 += 2
+        elif angle_knee > 120:
+            min_right2 += 1
+        count += 1
+
+        if angle_hip > 160:
+            mean_knee = min_right2/count
+            if min_right > 80 and mean_knee > 1.0:
+                A_count += 1
+            elif min_right > 65 and mean_knee > 0.8:
+                B_count += 1
+            else:
+                C_count += 1
+            
+            print_score()
+            state = 0
+            min_right2 = 0
+            min_right = 180
+            count = 0
     
-
-
-
-
-
 def side_lateral_raise():
-    pass
+    """
+        Exercise for side lateral raise process is defined
+    """
+    global A_count
+    global B_count
+    global C_count
+    global state
+    global min_right
+    global min_right2   # 더 많으면 1
+    global min_left
+    global min_left2
+    global count
+
+    angle_order = (((12,14),(12,11)),((14,12),(14,16)),((11,13),(11,12)),((13,11),(13,15)))
+    right_shoulder, right_elbow, left_shoulder, left_elbow = find_angles(angle_order, 4, [75, 90, 90, 75])
+
+    if state == 0 and right_elbow > 75 and left_elbow > 75 \
+        and right_shoulder > 80 and left_shoulder > 80:
+        state = 1
+    
+    if state == 1:
+        if right_shoulder > 120 and left_shoulder > 120:
+            state = 2
+    
+    if state == 2:
+        min_right = max(min_right, right_shoulder)
+        min_left = max(min_left, left_shoulder)
+        if right_elbow > 85 and left_elbow > 85:
+            min_right2 += 2
+        elif right_elbow > 80 and left_elbow > 80:
+            min_right2 += 1
+        else:
+            min_right2 += 1
+        
+        count += 1
+        mean_score = min_right2/count 
+
+        if right_shoulder < 100 and left_shoulder < 100:
+            if min_right > 170 and min_left > 170 \
+                and mean_score > 1.8:
+                A_count += 1
+
+            elif min_right > 165 or min_right > 165 \
+                or mean_score < 1.5:
+                B_count += 1
+            
+            else:
+                C_count += 1
+            
+            print_score()
+            state = 0
+            min_right2 = 0
+            count = 0
+            min_right = 75
+            min_left = 75
+    
+
+            
 
 
 
@@ -215,6 +336,7 @@ def process(image):
     global A_count
     global B_count
     global C_count
+    global frame_based
 
     image.flags.writeable = False
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  
@@ -234,12 +356,12 @@ def process(image):
             temp_dict[idx]['x'] = landmark.x
             temp_dict[idx]['y'] = landmark.y
     
+
     if num_exercise == 0: side_lunge()
     elif num_exercise == 1: shoulder_press()
     elif num_exercise == 2: lying_leg_raise()
     elif num_exercise == 3: side_lateral_raise()
 
-        
     
     # Draw the hand annotations on the image.
     image.flags.writeable = True
