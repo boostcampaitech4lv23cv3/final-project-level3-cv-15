@@ -1,12 +1,10 @@
-from fastapi import FastAPI, UploadFile, File
-from fastapi.param_functions import Depends
-from pydantic import BaseModel, Field
-from uuid import UUID, uuid4
-from typing import List, Union, Optional, Dict, Any
-from datetime import datetime
+from fastapi import FastAPI
+from pydantic import BaseModel
+from datetime import date
 from database import engineconn, User, Exercise
 import uvicorn
 import pandas as pd
+from sqlalchemy.dialects.mysql import insert
 
 app = FastAPI()
 
@@ -22,7 +20,7 @@ class UserItem(BaseModel):
 class ExerciseItem(BaseModel):
     user_hash : str
     type : str
-    date : datetime
+    date : date
     perfect : int
     good : int
     miss : int
@@ -49,16 +47,25 @@ def get_exercise():
 
 @app.post("/exercises")
 async def add_exercise(item: ExerciseItem):
-    new_exercise = Exercise(
+    insert_stmt = insert(Exercise).values(
                 user_hash=item.user_hash, 
                 type=item.type,
                 date=item.date, 
                 perfect=item.perfect, 
                 good=item.good,
                 miss=item.miss)
-    session.add(new_exercise)
-    session.commit()
-    return new_exercise
+
+    on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(
+                user_hash=insert_stmt.inserted.user_hash, 
+                type=insert_stmt.inserted.type,
+                date=insert_stmt.inserted.date, 
+                perfect=insert_stmt.inserted.perfect, 
+                good=insert_stmt.inserted.good,
+                miss=insert_stmt.inserted.miss,
+                status='U'
+            )
+
+    engine.engine.execute(on_duplicate_key_stmt)
 
 def user_info(user_id):
     sql = f"select * from user where user_id='{user_id}'"
