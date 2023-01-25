@@ -26,13 +26,27 @@ right_action = False
 left_action = False 
 min_right = 180
 min_left = 180
+min_right2 = 180
+min_left2 = 180
 A_count = 0
 B_count = 0
 C_count = 0
+state = 0
 
-
-num_exercise = 0    # 0: side lunge, 1: shoulder press, 2: lying leg raises, 3: side lateral raise
+num_exercise = 1    # 0: side lunge, 1: shoulder press, 2: lying leg raises, 3: side lateral raise
                     # 4: standing side crunch(?) 5: push up
+
+
+if num_exercise == 0:
+    min_right = 180
+    min_left = 180
+
+elif num_exercise == 1:
+    min_right = 125
+    min_right2 = 125
+    min_left = 125
+    min_left2 = 125
+
 
 
 def find_angles(angle_order, num, default_angles):
@@ -74,6 +88,11 @@ def find_angles(angle_order, num, default_angles):
 
     return angle_list
 
+def print_score():
+    global A_count
+    global B_count
+    global C_count
+    print("Perfect : ", A_count, "Good : ", B_count, "Miss : ", C_count)
 
 def side_lunge():
     global A_count
@@ -99,7 +118,7 @@ def side_lunge():
             else:
                 C_count += 1
 
-            print("Excellent : ",A_count, "Good : ", B_count, "Bad : ", C_count)
+            print_score()            
             min_right = 180
             min_left = 180
 
@@ -112,11 +131,80 @@ def side_lunge():
         left_action = True
         min_left = min(min_left, left_angle)
 
+
+
 def shoulder_press():
-    pass
+    global A_count
+    global B_count
+    global C_count
+    global state
+    global min_right
+    global min_left
+    global min_right2
+    global min_left2
+    
+    st = 10 # st : start_threshold
+
+    # 잘하는 조건 : 90 / 180 + 좌우 각도 같아야 한다
+    angle_order = (((14,16),(14,12)), ((12,14),(12,11)), ((13,15),(13,11)),((11,12),(11,13)))
+    right_elbow, right_shoulder, left_elbow, left_shoulder = find_angles(angle_order, 4, default_angles=[180,270,180,270])
+
+    # state 0 : 시작자세
+    # state 1 : 준비자세
+    # state 2 : 동작
+    
+    if state == 0 and 90-st < right_elbow < 90+st and 90-st < left_elbow < 90+st \
+        and 180-st < right_shoulder < 180+st and 180-st < left_shoulder < 180+st:
+        state = 1   
+    
+    if state == 1:
+        if 150 < right_elbow and 150 < left_elbow:
+            state = 2
+    
+    if state == 2:
+        min_right = max(min_right, right_elbow)
+        min_right2 = min(min_right2, right_shoulder)
+        min_left = max(min_left, left_elbow)
+        min_left2 = min(min_left2, left_shoulder)
+
+        if right_elbow < 100 and left_elbow < 100:
+            # count and calculate
+            if min_right > 170 and min_left > 170 \
+                and min_right2 < 95 and min_left2 < 95:
+                A_count += 1
+
+            elif min_right > 160 and min_left > 160 \
+                and min_right2 < 100 and min_left2 < 100:
+                B_count += 1
+            
+            else:
+                C_count += 1
+            
+            print_score()
+            state = 0
+            min_right = 125
+            min_right2 = 125
+            min_left = 125
+            min_left2 = 125
+
 
 def lying_leg_raise():
-    pass
+    global A_count
+    global B_count
+    global C_count
+    global state
+
+    print("왼쪽이나 오른쪽으로 서 주세요")
+
+    # state 0 : 시작자세
+    # state 1 : 왼쪽 기준으로 하면 된다.
+    
+    
+    
+
+
+
+
 
 def side_lateral_raise():
     pass
