@@ -5,6 +5,7 @@ import mediapipe as mp
 from streamlit_webrtc import webrtc_streamer, WebRtcMode, RTCConfiguration
 from mediapipe.framework.formats import landmark_pb2
 import math
+import time
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -40,11 +41,12 @@ C_count = 0
 state = 0
 count = 0
 
+sequence = 0
+
 # 운동 선택
 # 0: side lunge, 1: shoulder press, 2: lying leg raises, 3: side lateral raise
 # 4: standing side crunch(?) 5: push up
 num_exercise = 3
-frame_based = 0
 
 
 # 각각 운동에서 사용할 global 변수들 초기화
@@ -433,15 +435,42 @@ def push_up():
         right_action = True
         min_left = min(min_left, left_angle)
 
+def check_state():
+    """
+        if check state -> increase sequence
+        sequence 0 : not count yet (운동 시작 전)
+        sequence 1 : count exercise (운동 중)
+        sequence 2 : finished the exercise (운동 끝, 디비에 보낸다.)
+    """
+
+    threshold = 0.04
+
+    nose_loc = temp_dict[0]
+    right_wrist = temp_dict[15]
+    left_wrist = temp_dict[16]
+    
+    if right_wrist['x'] == -10 or right_wrist['y'] == -10 \
+        or left_wrist['x'] == -10 or left_wrist['y'] == -10:
+
+        return False
+
+    
+    if ((right_wrist['x'] - left_wrist['x'])**2 \
+        + (right_wrist['y'] - left_wrist['y'])**2) < threshold \
+            and nose_loc['y'] > right_wrist['y']:
+            return True
+    
+    return False
+
 
 def process(image):
     global A_count
     global B_count
     global C_count
-    global frame_based
+    global sequence
 
     image.flags.writeable = False
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  
+    # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  
     results = pose.process(image)
     
     
@@ -459,13 +488,42 @@ def process(image):
             temp_dict[idx]['y'] = landmark.y
     
 
-    if num_exercise == 0: side_lunge()
-    elif num_exercise == 1: shoulder_press()
-    elif num_exercise == 2: lying_leg_raise()
-    elif num_exercise == 3: side_lateral_raise()
-    elif num_exercise == 4: stand_side_crunch(image, landmark_list)
-    elif num_exercise == 5: push_up()
-    
+    if sequence == 0:       # 운동시작 전
+        if check_state():
+            sequence += 1
+            # 운동 시작을 알려주는 표시를 해야한다.
+            print("운동이 시작되었습니다.")
+            time.sleep(1)
+
+        return cv2.flip(image, 1)
+
+    elif sequence == 1:
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+
+        if num_exercise == 0: side_lunge()
+        elif num_exercise == 1: shoulder_press()
+        elif num_exercise == 2: lying_leg_raise()
+        elif num_exercise == 3: side_lateral_raise()
+        elif num_exercise == 4: stand_side_crunch(image, landmark_list)
+        elif num_exercise == 5: push_up()
+
+        if check_state():
+            sequence += 1
+            print("운동이 끝났습니다")
+            time.sleep(1)
+
+    elif sequence > 1:      # 운동 끝
+        if sequence == 2:
+            # 운동끝인 상태이므로, 여기서
+            # database로 옮기고 sequence 3으로 올리면 된다. (다시 skeleton 사라짐)
+            database = 100  # -> dummy code
+
+        return cv2.flip(image, 1)
+
+
+
+
     # Draw the hand annotations on the image.
     image.flags.writeable = True
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
