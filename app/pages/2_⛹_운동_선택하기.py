@@ -104,42 +104,42 @@ c1, c2, c3 = st.columns(3)
 
 with col1:
     st.image("img/1.jpg")
-    exercise_button = st.button("스탠딩 사이드 크런치")
+    exercise_button = st.button("사이드 런지")
     if exercise_button:
         asyncio.run(set_exercise_num(0))
         switch_page("운동 시작하기")
 
 with col2:
     st.image("img/1.jpg")
-    exercise_button = st.button("카트라이더")
+    exercise_button = st.button("숄더 프레스")
     if exercise_button:
         asyncio.run(set_exercise_num(1))
         switch_page("운동 시작하기")
 
 with col3:
     st.image("img/1.jpg")
-    exercise_button = st.button("닌자머스트다이")
+    exercise_button = st.button("라잉 레그 레이즈")
     if exercise_button:
         asyncio.run(set_exercise_num(2))
         switch_page("운동 시작하기")
 
 with c1:
     st.image("img/1.jpg")
-    exercise_button = st.button("롤토체스")
+    exercise_button = st.button("사이드 레트럴 레이즈")
     if exercise_button:
         asyncio.run(set_exercise_num(3))
         switch_page("운동 시작하기")
 
 with c2:
     st.image("img/1.jpg")
-    exercise_button = st.button("달리기")
+    exercise_button = st.button("스탠딩 사이드 크런치")
     if exercise_button:
         asyncio.run(set_exercise_num(4))
         switch_page("운동 시작하기")
 
 with c3:
     st.image("img/1.jpg")
-    exercise_button = st.button("숨쉬기")
+    exercise_button = st.button("푸쉬업")
     if exercise_button:
         asyncio.run(set_exercise_num(5))
         switch_page("운동 시작하기")
