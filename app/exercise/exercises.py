@@ -68,7 +68,13 @@ elif num_exercise == 3:
     min_left = 75
     min_right2 = 0
     count = 0
-    
+
+# stand side crunch
+elif num_exercise == 4:
+    min_left = 180
+    min_right = 180
+    min_ldistance = 999
+    min_rdistance = 999    
 
 def find_angles(angle_order, num, default_angles):
     """
@@ -326,10 +332,101 @@ def side_lateral_raise():
             count = 0
             min_right = 75
             min_left = 75
-    
 
+def get_pos(image, landmark_list):
+    mark_list = []
+    for idx, value in enumerate(landmark_list.landmark):
+        h, w, c = image.shape
+        cx, cy = int(value.x * w), int(value.y * h)
+        mark_list.append([idx, cx, cy])
+    return mark_list
+
+def stand_side_crunch(image, landmark_list):
+    global A_count
+    global B_count
+    global C_count
+    global min_left
+    global min_right
+    global min_ldistance
+    global min_rdistance
+
+    image_landmark = get_pos(image, landmark_list)
+
+    # angle_list = (26, 28, 24, 25, 23, 27)
+    # hand_list = (14, 16, 12, 13, 15, 11)
+
+    angle_order = (((26, 28), (26, 24)), ((25, 23), (25, 27)))
+    # hand_order = (((14, 16), (14, 12)), ((13, 15), (13, 11)))
+
+    right_angle, left_angle = find_angles(angle_order, 2, default_angles=[180,180])
+
+    left_distance = abs(image_landmark[13][1:][0] - image_landmark[25][1:][0]) + abs(image_landmark[13][1:][1] - image_landmark[25][1:][1])
+    right_distance = abs(image_landmark[14][1:][0] - image_landmark[26][1:][0]) + abs(image_landmark[14][1:][1] - image_landmark[26][1:][1])
+
+    if left_action and right_action:
+        if right_angle > 160 and left_angle > 160:
+            right_action = False
+            left_action = False
+            score = min_left + min_right + min_rdistance + min_ldistance
+            # print(min_left, min_right, min_rdistance, min_ldistance)
+            if score <= 200:
+                A_count += 1
+            elif score <= 230:
+                B_count += 1
+            else:
+                C_count += 1
+
+            print_score()
+            min_right = 180
+            min_left = 180
+            min_ldistance = 999
+            min_rdistance = 999
             
+    if right_angle < 100 and left_angle > 160 and right_distance <= 120:
+        right_action = True
+        min_right = min(min_right, right_angle)
+        min_rdistance = min(min_rdistance, right_distance)
+    
+    elif left_angle < 100 and right_angle > 160 and left_distance <= 120:
+        left_action = True
+        min_left = min(min_left, left_angle)
+        min_ldistance = min(min_ldistance, left_distance)
 
+
+def push_up():
+    global A_count
+    global B_count
+    global C_count
+    global left_action
+    global right_action
+    global min_right
+    global min_left
+
+    angle_order = (((14, 16), (14, 12)), ((13, 15), (13, 11)))
+
+    right_angle, left_angle = find_angles(angle_order, 2, default_angles=[180,180])
+
+    if right_action and left_action:
+        if right_angle > 150 and left_angle > 150:
+            right_action = False
+            left_action = False
+            # score = min_left + min_right + min_rdistance + min_ldistance
+            # print(min_left, min_right, min_rdistance, min_ldistance)
+            if min_left <= 80:
+                A_count += 1
+            elif min_left <= 100:
+                B_count += 1
+            else:
+                C_count += 1
+
+            print_score()
+            min_right = 180
+            min_left = 180
+    
+    if left_angle < 120 and right_angle < 120:
+        left_action = True
+        right_action = True
+        min_left = min(min_left, left_angle)
 
 
 def process(image):
@@ -361,7 +458,8 @@ def process(image):
     elif num_exercise == 1: shoulder_press()
     elif num_exercise == 2: lying_leg_raise()
     elif num_exercise == 3: side_lateral_raise()
-
+    elif num_exercise == 4: stand_side_crunch(image, landmark_list)
+    elif num_exercise == 5: push_up()
     
     # Draw the hand annotations on the image.
     image.flags.writeable = True
@@ -386,7 +484,7 @@ def video_frame_callback(frame):
     return av.VideoFrame.from_ndarray(img, format="bgr24")
 
 webrtc_ctx = webrtc_streamer(
-    key="WYH",
+    key="Pose-estimation",
     mode=WebRtcMode.SENDRECV,
     rtc_configuration=RTC_CONFIGURATION,
     media_stream_constraints={"video": True, "audio": False},
