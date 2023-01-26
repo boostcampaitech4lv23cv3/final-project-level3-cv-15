@@ -74,7 +74,12 @@ elif num_exercise == 4:
     min_left = 180
     min_right = 180
     min_ldistance = 999
-    min_rdistance = 999    
+    min_rdistance = 999  
+
+# pushup
+elif num_exercise == 5:
+    min_left = 180
+    min_right = 180 
 
 def find_angles(angle_order, num, default_angles):
     """
