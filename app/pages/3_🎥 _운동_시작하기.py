@@ -86,10 +86,16 @@ for i in range(35):
     temp_dict[i] = dict()
     # temp_dict[33], temp_dict[34] = 지면과 각도 구하기위한 벡터
 
+for i in range(33):
+    temp_dict[i]['x'] = -10
+    temp_dict[i]['y'] = -10
+
 temp_dict[33]['x'] = 1
 temp_dict[33]['y'] = 0
 temp_dict[34]['x'] = 2
 temp_dict[34]['y'] = 0
+
+
 
 right_action = False
 left_action = False 
@@ -102,8 +108,12 @@ B_count = 0
 C_count = 0
 state = 0
 count = 0
-
 sequence = 0
+
+message_length = 0
+A_pre = 0
+B_pre = 0
+C_pre = 0
 
 # 각각 운동에서 사용할 global 변수들 초기화
 if ex_num == 0:
@@ -145,6 +155,7 @@ def find_angles(angle_order, num, default_angles):
         input : set : set of angles
                 int : num of angles, 
                 list : default_angles
+
         output :  float (angles) 0~180
     """
 
@@ -183,6 +194,7 @@ def print_score():
     """
         print Perfect/ Good/ Miss scores
     """
+
     global A_count
     global B_count
     global C_count
@@ -199,6 +211,11 @@ def side_lunge():
     global right_action
     global min_right
     global min_left
+
+    point_used = (26,28,24,25,23,27)
+    for point in point_used:
+        if temp_dict[point]['x'] == -10:
+            return
 
     angle_order = (((26,28),(26,24)), ((25,23),(25,27)))
 
@@ -245,7 +262,12 @@ def shoulder_press():
     
     st = 10 # st : start_threshold
 
-    # 잘하는 조건 : 90 / 180 + 좌우 각도 같아야 한다
+
+    point_used = (14,16,12,11,13,15)
+    for point in point_used:
+        if temp_dict[point]['x'] == -10:
+            return
+    
     angle_order = (((14,16),(14,12)), ((12,14),(12,11)), ((13,15),(13,11)),((11,12),(11,13)))
     right_elbow, right_shoulder, left_elbow, left_shoulder = find_angles(angle_order, 4, default_angles=[180,270,180,270])
 
@@ -301,6 +323,11 @@ def lying_leg_raise():
     global count
 
     # print("카메라에 몸의 왼쪽이나 오른쪽이 보이게 누워주세요")
+    point_used = (12,24,26,28)
+    for point in point_used:
+        if temp_dict[point]['x'] == -10:
+            return
+
     angle_order = (((33,34),(12,24)),((24,12),(24,26)),((26,24),(26,28)))  # 33, 34는 지면과 벡터
     angle_x_axis, angle_hip, angle_knee = find_angles(angle_order, 3, default_angles=[180, 180, 75])
     # state 0 : 시작자세
@@ -350,6 +377,11 @@ def side_lateral_raise():
     global min_left
     global min_left2
     global count
+
+    point_used = (12,14,11,16,13,15)
+    for point in point_used:
+        if temp_dict[point]['x'] == -10:
+            return
 
     angle_order = (((12,14),(12,11)),((14,12),(14,16)),((11,13),(11,12)),((13,11),(13,15)))
     right_shoulder, right_elbow, left_shoulder, left_elbow = find_angles(angle_order, 4, [75, 90, 90, 75])
@@ -410,23 +442,24 @@ def stand_side_crunch(image, landmark_list):
     global min_right
     global min_ldistance
     global min_rdistance
-    global left_action
-    global right_action
+
+    image_landmark = get_pos(image, landmark_list)
 
     # angle_list = (26, 28, 24, 25, 23, 27)
     # hand_list = (14, 16, 12, 13, 15, 11)
+
+    point_used = (26,28,24,25,23,27)
+    for point in point_used:
+        if temp_dict[point]['x'] == -10:
+            return
 
     angle_order = (((26, 28), (26, 24)), ((25, 23), (25, 27)))
     # hand_order = (((14, 16), (14, 12)), ((13, 15), (13, 11)))
 
     right_angle, left_angle = find_angles(angle_order, 2, default_angles=[180,180])
 
-    try:
-        image_landmark = get_pos(image, landmark_list)
-        left_distance = abs(image_landmark[13][1:][0] - image_landmark[25][1:][0]) + abs(image_landmark[13][1:][1] - image_landmark[25][1:][1])
-        right_distance = abs(image_landmark[14][1:][0] - image_landmark[26][1:][0]) + abs(image_landmark[14][1:][1] - image_landmark[26][1:][1])
-    except:
-        pass
+    left_distance = abs(image_landmark[13][1:][0] - image_landmark[25][1:][0]) + abs(image_landmark[13][1:][1] - image_landmark[25][1:][1])
+    right_distance = abs(image_landmark[14][1:][0] - image_landmark[26][1:][0]) + abs(image_landmark[14][1:][1] - image_landmark[26][1:][1])
 
     if left_action and right_action:
         if right_angle > 160 and left_angle > 160:
@@ -467,6 +500,11 @@ def push_up():
     global min_right
     global min_left
 
+    point_used = (14,16,12,11,13,15)
+    for point in point_used:
+        if temp_dict[point]['x'] == -10:
+            return
+            
     angle_order = (((14, 16), (14, 12)), ((13, 15), (13, 11)))
 
     right_angle, left_angle = find_angles(angle_order, 2, default_angles=[180,180])
@@ -515,7 +553,9 @@ def check_state():
     
     if ((right_wrist['x'] - left_wrist['x'])**2 \
         + (right_wrist['y'] - left_wrist['y'])**2) < threshold \
-            and nose_loc['y'] > right_wrist['y']:
+            and ((nose_loc['x'] - left_wrist['x'])**2 \
+            + (nose_loc['y'] - left_wrist['y'])**2) < threshold:
+
             return True
     
     return False
@@ -550,7 +590,7 @@ def process(image):
         if check_state():
             sequence += 1
             # 운동 시작을 알려주는 표시를 해야한다.
-            print("운동이 시작되었습니다.")
+            print("운동 시작!!")
             time.sleep(1)
 
         return cv2.flip(image, 1)
@@ -559,51 +599,25 @@ def process(image):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
 
-        if ex_num == 0: side_lunge()
-        elif ex_num == 1: shoulder_press()
-        elif ex_num == 2: lying_leg_raise()
-        elif ex_num == 3: side_lateral_raise()
-        elif ex_num == 4: stand_side_crunch(image, landmark_list)
-        elif ex_num == 5: push_up()
+        if num_exercise == 0: side_lunge()
+        elif num_exercise == 1: shoulder_press()
+        elif num_exercise == 2: lying_leg_raise()
+        elif num_exercise == 3: side_lateral_raise()
+        elif num_exercise == 4: stand_side_crunch(image, landmark_list)
+        elif num_exercise == 5: push_up()
 
         if check_state():
             sequence += 1
-            print("운동이 끝났습니다")
             time.sleep(1)
 
     elif sequence > 1:      # 운동 끝
         if sequence == 2:
             # 운동끝인 상태이므로, 여기서
             # database로 옮기고 sequence 3으로 올리면 된다. (다시 skeleton 사라짐)
-            user_exercise = user_exercise_info(user_info['hashed_pw'], date.today())
-            user_exercise_type = user_exercise[user_exercise["type"]==exercise_list[ex_num]]
-            # 운동 카운트가 0이라면 DB 저장 안하도록
-            if A_count+B_count+C_count == 0:
-                pass
-            # 오늘 해당 운동 타입을 이미 한 적이 있다면
-            elif len(user_exercise_type):
-                new_exercise = {
-                            "user_hash": user_info['hashed_pw'],
-                            "type": exercise_list[ex_num],
-                            "date": date.today().strftime('%Y-%m-%d'),
-                            "perfect": int(user_exercise_type["perfect"][0] + A_count),
-                            "good": int(user_exercise_type["good"][0] + B_count),
-                            "miss": int(user_exercise_type["miss"][0] + C_count)
-                            }
-                requests.post('http://127.0.0.1:8000/exercises', json=new_exercise)
-            else:
-                new_exercise = {
-                                "user_hash": user_info['hashed_pw'],
-                                "type": exercise_list[ex_num],
-                                "date": date.today().strftime('%Y-%m-%d'),
-                                "perfect": A_count,
-                                "good": B_count,
-                                "miss": C_count
-                                }
-                requests.post('http://127.0.0.1:8000/exercises', json=new_exercise)
-            sequence += 1
+            database = 100  # -> dummy code
 
         return cv2.flip(image, 1)
+
 
     # Draw the hand annotations on the image.
     image.flags.writeable = True
@@ -616,6 +630,59 @@ def process(image):
 
     return cv2.flip(image, 1)
 
+
+def put_text(image, s):
+    font =  cv2.FONT_HERSHEY_PLAIN
+    black = (0, 0, 0)
+    cv2.putText(image, s, (75, 40), font, 1.2, black, 1, cv2.LINE_AA)
+
+flag = 0
+def process2(image):
+    global A_count
+    global B_count
+    global C_count
+    global A_pre
+    global B_pre
+    global C_pre
+    global message_length
+    global flag
+
+    font =  cv2.FONT_HERSHEY_PLAIN
+    black = (0, 0, 0)
+
+    if flag == 1:
+        s = "Excellent!"
+        cv2.putText(image, s, (100, 40), font, 2, black, 1, cv2.LINE_AA)
+        message_length += 1
+    elif flag == 2:
+        s = "Good!"
+        cv2.putText(image, s, (100, 40), font, 2, black, 1, cv2.LINE_AA)
+        message_length += 1
+    elif flag == 3:
+        s = "Miss!"
+        cv2.putText(image, s, (100, 40), font, 2, black, 1, cv2.LINE_AA)
+        message_length += 1
+
+    if message_length > 12:
+        flag = 0
+
+    if A_pre != A_count:
+        flag = 1
+        message_length = 0
+        A_pre = A_count
+    elif B_pre != B_count:
+        flag = 2
+        message_length = 0
+        B_pre = B_count
+    elif C_pre != C_count:
+        flag = 3
+        message_length = 0
+        C_pre = C_count
+        
+    return image
+
+
+
 # # # # # # # # # # # # # # # # # # implemented code # # # # # # # # # # # # # # # # # #
 
 RTC_CONFIGURATION = RTCConfiguration(
@@ -623,8 +690,12 @@ RTC_CONFIGURATION = RTCConfiguration(
 )
 
 def video_frame_callback(frame):
+    global sequence
     img = frame.to_ndarray(format="bgr24")
     img = process(img)
+    if sequence == 1:
+        img = process2(img)
+    
     return av.VideoFrame.from_ndarray(img, format="bgr24")
 
 webrtc_ctx = webrtc_streamer(
