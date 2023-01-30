@@ -39,7 +39,7 @@ style = """
                 background-repeat: no-repeat;
                 padding-top: 150px;
                 background-position: 10px 10px;
-                background-size: 45% 45%;
+                background-size: 160px 160px;
             }
     """
 st.markdown(f"<style>{style}</style>", unsafe_allow_html=True)

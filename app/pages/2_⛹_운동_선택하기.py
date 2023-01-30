@@ -48,8 +48,9 @@ style = """
                 background-repeat: no-repeat;
                 padding-top: 150px;
                 background-position: 10px 10px;
-                background-size: 45% 45%;
+                background-size: 160px 160px;
             }
+        @import url('https://fonts.cdnfonts.com/css/inter');
     """
     
 # margin: 세로 가로;
@@ -80,7 +81,7 @@ button_style = """
                 width: 181px;
                 height: 21.08px;
 
-                font-family: 'Inter';
+                font-family: 'Inter', sans-serif;
                 font-style: normal;
                 font-weight: 700;
                 font-size: 20px;
