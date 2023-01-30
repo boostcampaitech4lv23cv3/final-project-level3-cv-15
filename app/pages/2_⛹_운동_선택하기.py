@@ -43,6 +43,13 @@ style = """
         .css-k1vhr4.egzxvld3 > div > div:nth-child(1) > div > div:nth-child(1) > div > div > div {
             margin: 3.6% 0 0 0;
         }
+        [data-testid="stSidebarNav"] {
+                background-image: url("https://i.ibb.co/sb3bvBR/after-app-logo.png");
+                background-repeat: no-repeat;
+                padding-top: 150px;
+                background-position: 10px 10px;
+                background-size: 45% 45%;
+            }
     """
     
 # margin: 세로 가로;

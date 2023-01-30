@@ -34,6 +34,13 @@ style = """
         .css-6qob1r.e1fqkh3o3{
             background-color: #DAE1E7;
         }
+        [data-testid="stSidebarNav"] {
+                background-image: url("https://i.ibb.co/sb3bvBR/after-app-logo.png");
+                background-repeat: no-repeat;
+                padding-top: 150px;
+                background-position: 10px 10px;
+                background-size: 45% 45%;
+            }
     """
 st.markdown(f"<style>{style}</style>", unsafe_allow_html=True)
 
