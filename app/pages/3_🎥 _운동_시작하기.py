@@ -682,20 +682,18 @@ def process2(image):
     global message_length
     global flag
 
-    font =  cv2.FONT_HERSHEY_PLAIN
-    black = (0, 0, 0)
-
+    font =  cv2.FONT_HERSHEY_SIMPLEX
     if flag == 1:
-        s = "Excellent!"
-        cv2.putText(image, s, (100, 40), font, 2, black, 1, cv2.LINE_AA)
+        s = "Perfect!"
+        cv2.putText(image, s, (90, 60), font, 1, (222,120,53), 3, cv2.LINE_AA)
         message_length += 1
     elif flag == 2:
         s = "Good!"
-        cv2.putText(image, s, (100, 40), font, 2, black, 1, cv2.LINE_AA)
+        cv2.putText(image, s, (90, 60), font, 1, (198,173,159), 3, cv2.LINE_AA)
         message_length += 1
     elif flag == 3:
         s = "Miss!"
-        cv2.putText(image, s, (100, 40), font, 2, black, 1, cv2.LINE_AA)
+        cv2.putText(image, s, (90, 60), font, 1, (53,53,222), 3, cv2.LINE_AA)
         message_length += 1
 
     if message_length > 12:
