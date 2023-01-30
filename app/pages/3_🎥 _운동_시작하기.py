@@ -66,8 +66,10 @@ if st.sidebar.button("Logout"):
     switch_page("frontend")
 
 
-
-st.title("Pose Estimation with Camera")
+if ex_num == 2:
+    st.title("옆을 바라봐주세요")
+else:
+    st.title("정면을 바라봐주세요")
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles

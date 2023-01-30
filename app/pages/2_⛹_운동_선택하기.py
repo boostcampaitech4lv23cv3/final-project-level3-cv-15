@@ -16,6 +16,7 @@ st.write(
     unsafe_allow_html=True,
 )
 
+
 # --- CSS
 style = """
         .css-wjbhl0.e1fqkh3o9 > li:nth-child(1){
@@ -103,42 +104,42 @@ col1, col2, col3 = st.columns(3)
 c1, c2, c3 = st.columns(3)
 
 with col1:
-    st.image("img/1.jpg")
+    st.video('https://www.youtube.com/watch?v=gwWv7aPcD88')
     exercise_button = st.button("사이드 런지")
     if exercise_button:
         asyncio.run(set_exercise_num(0))
         switch_page("운동 시작하기")
 
 with col2:
-    st.image("img/1.jpg")
+    st.video('https://www.youtube.com/watch?v=0JfYxMRsUCQ')
     exercise_button = st.button("숄더 프레스")
     if exercise_button:
         asyncio.run(set_exercise_num(1))
         switch_page("운동 시작하기")
 
 with col3:
-    st.image("img/1.jpg")
+    st.video('https://www.youtube.com/watch?v=Wp4BlxcFTkE&list=PLwvDl9NjQOojM859nq5r6UttCEYV_J8nJ&index=43')
     exercise_button = st.button("라잉 레그 레이즈")
     if exercise_button:
         asyncio.run(set_exercise_num(2))
         switch_page("운동 시작하기")
 
 with c1:
-    st.image("img/1.jpg")
+    st.video('https://www.youtube.com/watch?v=-WEZj9ePTYI')
     exercise_button = st.button("사이드 레트럴 레이즈")
     if exercise_button:
         asyncio.run(set_exercise_num(3))
         switch_page("운동 시작하기")
 
 with c2:
-    st.image("img/1.jpg")
+    st.video('https://www.youtube.com/watch?v=aKAb3mbp1sw')
     exercise_button = st.button("스탠딩 사이드 크런치")
     if exercise_button:
         asyncio.run(set_exercise_num(4))
         switch_page("운동 시작하기")
 
 with c3:
-    st.image("img/1.jpg")
+    st.video('https://www.youtube.com/watch?v=_l3ySVKYVJ8')
     exercise_button = st.button("푸쉬업")
     if exercise_button:
         asyncio.run(set_exercise_num(5))
