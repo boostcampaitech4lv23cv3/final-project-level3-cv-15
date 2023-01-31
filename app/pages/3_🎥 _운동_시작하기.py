@@ -3,7 +3,6 @@ import streamlit as st
 from localstorage import remove_from_local_storage, get_from_local_storage, get_exercise_num
 import time
 import asyncio
-from streamlit_webrtc import webrtc_streamer
 from streamlit_webrtc import webrtc_streamer, WebRtcMode, RTCConfiguration
 import av
 
@@ -82,6 +81,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose(
+    model_complexity=1,
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5)
 
@@ -678,6 +678,10 @@ def process(image):
 
     return cv2.flip(image, 1)
 
+perfect_img =cv2.imread("./img/perfect.png")
+good_img = cv2.imread("./img/good.png")
+miss_img = cv2.imread("./img/miss.png")
+
 flag = 0
 def process2(image):
     global A_count
@@ -688,24 +692,10 @@ def process2(image):
     global C_pre
     global message_length
     global flag
-
-    font =  cv2.FONT_HERSHEY_SIMPLEX
-    if flag == 1:
-        s = "Perfect!"
-        cv2.putText(image, s, (90, 60), font, 1, (222,120,53), 3, cv2.LINE_AA)
-        message_length += 1
-    elif flag == 2:
-        s = "Good!"
-        cv2.putText(image, s, (90, 60), font, 1, (198,173,159), 3, cv2.LINE_AA)
-        message_length += 1
-    elif flag == 3:
-        s = "Miss!"
-        cv2.putText(image, s, (90, 60), font, 1, (53,53,222), 3, cv2.LINE_AA)
-        message_length += 1
-
+    
     if message_length > 12:
         flag = 0
-
+        
     if A_pre != A_count:
         flag = 1
         message_length = 0
@@ -719,6 +709,33 @@ def process2(image):
         message_length = 0
         C_pre = C_count
         
+    if flag == 0:
+        return image
+    elif flag == 1:
+        score_img = perfect_img
+        message_length += 1
+    elif flag == 2:
+        score_img = good_img
+        message_length += 1
+    elif flag == 3:
+        score_img = miss_img
+        message_length += 1
+    
+    h, w, _ = score_img.shape
+    h = int(h/1.5)
+    w = int(w/1.5)
+    score_img = cv2.resize(score_img,(w,h))
+    roi = image[50:50+h, 50:50+w]#배경이미지의 변경할(다음 로고 넣을) 영역
+    mask = cv2.cvtColor(score_img, cv2.COLOR_BGR2GRAY)#로고를 흑백처리
+    #이미지 이진화 => 배경은 검정. 글자는 흰색
+    mask[mask[:]==255]=0
+    mask[mask[:]>0]=255
+    mask_inv = cv2.bitwise_not(mask) #mask반전.  => 배경은 흰색. 글자는 검정
+    score_image = cv2.bitwise_and(score_img, score_img, mask=mask)#마스크와 로고 칼라이미지 and하면 글자만 추출됨
+    back = cv2.bitwise_and(roi, roi, mask=mask_inv)#roi와 mask_inv와 and하면 roi에 글자모양만 검정색으로 됨
+    dst = cv2.bitwise_or(score_image, back)#로고 글자와 글자모양이 뚤린 배경을 합침
+    image[50:50+h, 50:50+w] = dst  #roi를 제자리에 넣음
+
     return image
 
 
@@ -739,7 +756,8 @@ webrtc_ctx = webrtc_streamer(
     key="Pose-estimation",
     mode=WebRtcMode.SENDRECV,
     rtc_configuration=RTC_CONFIGURATION,
-    media_stream_constraints={"video": True, "audio": False},
+    media_stream_constraints={"video": {"width":1200, "height":640}, 
+                              "audio": False},
     video_frame_callback=video_frame_callback,
     async_processing=True,  # or False
 )
