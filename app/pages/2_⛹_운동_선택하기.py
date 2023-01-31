@@ -71,14 +71,13 @@ button_style = """
                 display: flex;
                 justify-content: center;
                 
-                width: 191px;
                 height: 64px;
 
                 background: #292C36;
                 border-radius: 10px;
             }
             .css-k1vhr4.egzxvld3 > div > div:nth-child(1) > div > div:nth-child(%(n_row)s) > div:nth-child(%(n_col)s) > div:nth-child(1) > div > div:nth-child(2) > div > button > div > p {
-                width: 181px;
+                width: 200px;
                 height: 21.08px;
 
                 font-family: 'Inter', sans-serif;
