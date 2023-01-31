@@ -73,9 +73,9 @@ if st.sidebar.button("Logout"):
 
 
 if ex_num == 2:
-    st.title("옆을 바라봐주세요")
+    st.title("카메라가 측면을 향하게 해주세요.")
 else:
-    st.title("정면을 바라봐주세요")
+    st.title("카메라가 정면을 향하게 해주세요.")
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
