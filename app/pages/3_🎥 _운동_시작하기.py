@@ -580,17 +580,28 @@ def check_state():
     return False
 
 
-
+is_posed = False
+time_count = 0
 def process(image):
     global A_count
     global B_count
     global C_count
+    global A_pre
+    global B_pre
+    global C_pre
     global sequence
+    global is_posed
+    global time_count
+    global flag
 
     image.flags.writeable = False
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  
     results = pose.process(image)
     
+    if is_posed:
+        time_count += 1
+        if time_count == 30:    # 30 frame 동안 다른 상태변화 불가능하게
+            is_posed = False
     
     # calculate angle
     landmark_list = results.pose_landmarks
@@ -612,12 +623,17 @@ def process(image):
         if check_state():
             sequence += 1
             # 운동 시작을 알려주는 표시를 해야한다.
-            print("운동이 시작되었습니다.")
-            time.sleep(1)
+            is_posed = True
+            time_count = 0
+            flag = 0
+            print("운동 시작!!")
 
         return cv2.flip(image, 1)
 
     elif sequence == 1:
+        if is_posed:
+            pass
+
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
 
@@ -628,43 +644,54 @@ def process(image):
         elif ex_num == 4: stand_side_crunch(image, landmark_list)
         elif ex_num == 5: push_up()
 
-        if check_state():
+        if check_state() and A_count + B_count + C_count != 0:
             sequence += 1
-            print("운동이 끝났습니다")
-            time.sleep(1)
 
-    elif sequence > 1:      # 운동 끝
-        if sequence == 2:
-            # 운동끝인 상태이므로, 여기서
-            # database로 옮기고 sequence 3으로 올리면 된다. (다시 skeleton 사라짐)
-            user_exercise = user_exercise_info(user_info['hashed_pw'], date.today())
-            user_exercise_type = user_exercise[user_exercise["type"]==exercise_list[ex_num]]
-            # 운동 카운트가 0이라면 DB 저장 안하도록
-            if A_count+B_count+C_count == 0:
-                pass
-            # 오늘 해당 운동 타입을 이미 한 적이 있다면
-            elif len(user_exercise_type):
-                new_exercise = {
+    elif sequence == 2:      # 운동 끝
+    
+        # 운동끝인 상태이므로, 여기서
+        # database로 옮기고 sequence 3으로 올리면 된다. (다시 skeleton 사라짐)
+        user_exercise = user_exercise_info(user_info['hashed_pw'], date.today())
+        user_exercise_type = user_exercise[user_exercise["type"]==exercise_list[ex_num]]
+        # 운동 카운트가 0이라면 DB 저장 안하도록
+        if A_count+B_count+C_count == 0:
+            pass
+        # 오늘 해당 운동 타입을 이미 한 적이 있다면
+        elif len(user_exercise_type):
+            new_exercise = {
+                        "user_hash": user_info['hashed_pw'],
+                        "type": exercise_list[ex_num],
+                        "date": date.today().strftime('%Y-%m-%d'),
+                        "perfect": int(user_exercise_type["perfect"][0] + A_count),
+                        "good": int(user_exercise_type["good"][0] + B_count),
+                        "miss": int(user_exercise_type["miss"][0] + C_count)
+                        }
+            requests.post('http://127.0.0.1:8000/exercises', json=new_exercise)
+        else:
+            new_exercise = {
                             "user_hash": user_info['hashed_pw'],
                             "type": exercise_list[ex_num],
                             "date": date.today().strftime('%Y-%m-%d'),
-                            "perfect": int(user_exercise_type["perfect"][0] + A_count),
-                            "good": int(user_exercise_type["good"][0] + B_count),
-                            "miss": int(user_exercise_type["miss"][0] + C_count)
+                            "perfect": A_count,
+                            "good": B_count,
+                            "miss": C_count
                             }
-                requests.post('http://127.0.0.1:8000/exercises', json=new_exercise)
-            else:
-                new_exercise = {
-                                "user_hash": user_info['hashed_pw'],
-                                "type": exercise_list[ex_num],
-                                "date": date.today().strftime('%Y-%m-%d'),
-                                "perfect": A_count,
-                                "good": B_count,
-                                "miss": C_count
-                                }
-                requests.post('http://127.0.0.1:8000/exercises', json=new_exercise)
-            sequence += 1
+            requests.post('http://127.0.0.1:8000/exercises', json=new_exercise)
+        
+        is_posed = True
+        time_count = 0
+        sequence += 1
+        
+        return cv2.flip(image, 1)
+    
+    elif sequence == 3: 
+        if is_posed:
+            return cv2.flip(image, 1)
 
+        A_count, B_count, C_count = 0, 0, 0
+        A_pre, B_pre, C_pre = 0, 0, 0
+        time_count = 0
+        sequence = 0
         return cv2.flip(image, 1)
 
     # Draw the hand annotations on the image.
@@ -748,7 +775,7 @@ RTC_CONFIGURATION = RTCConfiguration(
 def video_frame_callback(frame):
     img = frame.to_ndarray(format="bgr24")
     img = process(img)
-    if sequence == 1:
+    if sequence == 1 and not is_posed:
         img = process2(img)
     return av.VideoFrame.from_ndarray(img, format="bgr24")
 
