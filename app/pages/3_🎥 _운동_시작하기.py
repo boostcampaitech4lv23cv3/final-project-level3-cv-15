@@ -271,9 +271,9 @@ def shoulder_press():
     global min_right2
     global min_left2
     
-    st = 10 # st : start_threshold
+    st = 25 # st : start_threshold
 
-
+    # elbow, wrist, shoulder
     point_used = (14,16,12,11,13,15)
     for point in point_used:
         if temp_dict[point]['x'] == -10:
@@ -288,10 +288,12 @@ def shoulder_press():
     
     if state == 0 and 90-st < right_elbow < 90+st and 90-st < left_elbow < 90+st \
         and 180-st < right_shoulder < 180+st and 180-st < left_shoulder < 180+st:
-        state = 1   
+        state = 1
     
     if state == 1:
-        if 150 < right_elbow and 150 < left_elbow:
+        if 130 < right_elbow and 130 < left_elbow \
+            and right_shoulder < 135 and left_shoulder < 135:
+            # 동작을 했다고 가정
             state = 2
     
     if state == 2:
@@ -300,19 +302,24 @@ def shoulder_press():
         min_left = max(min_left, left_elbow)
         min_left2 = min(min_left2, left_shoulder)
 
+        if 90-st < right_elbow < 90+st and 90-st < left_elbow < 90+st \
+        and 180-st < right_shoulder < 180+st and 180-st < left_shoulder < 180+st:
+            state = 3
+    
+    if state == 3:
         if right_elbow < 100 and left_elbow < 100:
             # count and calculate
-            if min_right > 170 and min_left > 170 \
-                and min_right2 < 95 and min_left2 < 95:
+            if min_right > 165 and min_left > 165 \
+                and min_right2 < 100 and min_left2 < 100:
                 A_count += 1
 
-            elif min_right > 160 and min_left > 160 \
-                and min_right2 < 100 and min_left2 < 100:
+            elif min_right > 155 and min_left > 155 \
+                and min_right2 < 105 and min_left2 < 105:
                 B_count += 1
             
             else:
                 C_count += 1
-            
+        
             print_score()
             state = 0
             min_right = 125
@@ -333,23 +340,32 @@ def lying_leg_raise():
     global min_right2   # 더 많으면
     global count
 
-    # print("카메라에 몸의 왼쪽이나 오른쪽이 보이게 누워주세요")
+    # print("카메라에 오른 쪽 몸이 보이게 누워주세요")
     point_used = (12,24,26,28)
     for point in point_used:
         if temp_dict[point]['x'] == -10:
             return
+
+    # 12 : 어깨
+    # 24 : 힙
+    # 26 : knee
+    # 28 : ankle
 
     angle_order = (((33,34),(12,24)),((24,12),(24,26)),((26,24),(26,28)))  # 33, 34는 지면과 벡터
     angle_x_axis, angle_hip, angle_knee = find_angles(angle_order, 3, default_angles=[180, 180, 75])
     # state 0 : 시작자세
     # state 1 : 오른쪽 기준으로
 
-    if state == 0 and angle_x_axis > 150 and angle_hip > 150\
+    # print("angle_x_axis",angle_x_axis)
+    # print("angle_hip", angle_hip)
+    # print("angle_knee", angle_knee)
+
+    if state == 0 and angle_x_axis < 30 and angle_hip > 150\
         and angle_knee > 120:
         state = 1
     
     if state == 1:
-        if angle_hip < 120:
+        if angle_hip < 130:
             state = 2
     
     if state == 2:
@@ -362,14 +378,15 @@ def lying_leg_raise():
 
         if angle_hip > 160:
             mean_knee = min_right2/count
-            if min_right > 80 and mean_knee > 1.0:
+            if min_right < 105 and mean_knee > 1.0:
                 A_count += 1
-            elif min_right > 65 and mean_knee > 0.8:
+            elif min_right < 120 and mean_knee > 0.8:
                 B_count += 1
             else:
                 C_count += 1
             
             print_score()
+            # print("min_right :", min_right)
             state = 0
             min_right2 = 0
             min_right = 180
@@ -410,7 +427,7 @@ def side_lateral_raise():
         min_left = max(min_left, left_shoulder)
         if right_elbow > 85 and left_elbow > 85:
             min_right2 += 2
-        elif right_elbow > 80 and left_elbow > 80:
+        elif right_elbow > 70 and left_elbow > 70:
             min_right2 += 1
         else:
             min_right2 += 1
@@ -418,13 +435,13 @@ def side_lateral_raise():
         count += 1
         mean_score = min_right2/count 
 
-        if right_shoulder < 100 and left_shoulder < 100:
+        if right_shoulder < 110 and left_shoulder < 110:
             if min_right > 170 and min_left > 170 \
-                and mean_score > 1.8:
+                and mean_score > 1.7:
                 A_count += 1
 
-            elif min_right > 165 or min_right > 165 \
-                or mean_score < 1.5:
+            elif min_right > 155 or min_right > 155 \
+                or mean_score < 1.4:
                 B_count += 1
             
             else:
@@ -436,6 +453,7 @@ def side_lateral_raise():
             count = 0
             min_right = 75
             min_left = 75
+
 
 def get_pos(image, landmark_list):
     mark_list = []
@@ -556,26 +574,29 @@ def check_state():
         sequence 2 : finished the exercise (운동 끝, 디비에 보낸다.)
     """
 
-    threshold = 0.02
 
     nose_loc = temp_dict[0]
-    right_wrist = temp_dict[15]
-    left_wrist = temp_dict[16]
+    left_ear = temp_dict[7]
+    left_wrist = temp_dict[15]
+    right_ear = temp_dict[8]
+    right_wrist = temp_dict[16]
+    left_shoulder = temp_dict[11]
     
-    if right_wrist['x'] == -10 or right_wrist['y'] == -10 \
-        or left_wrist['x'] == -10 or left_wrist['y'] == -10:
+    # 1. 엄지의 y는 어깨 - 귀 사이
+    # 2. 엄지의 x는 그냥 x도 귀 사이
+    # 엄지가 입꼬리와 nose 사이에 있어야 한다.
 
-        return False
+    x_threshold = 0.2
+    y_threshold = 0.2
     
-    if nose_loc['z'] <= right_wrist['z'] or nose_loc['z'] <= left_wrist['z']:
-        return False
+    x_add = (left_ear['x'] - right_ear['x']) * x_threshold
+    y_add = (left_shoulder['y'] - left_ear['y']) * y_threshold
 
-    if ((right_wrist['x'] - left_wrist['x'])**2 \
-        + (right_wrist['y'] - left_wrist['y'])**2) < threshold \
-            and ((nose_loc['x'] - left_wrist['x'])**2 \
-            + (nose_loc['y'] - left_wrist['y'])**2) < threshold \
-                :
-            return True
+    if right_ear['x'] - x_add < left_wrist['x'] < left_ear['x'] + x_add and \
+        right_ear['x'] - x_add < right_wrist['x'] < left_ear['x'] + x_add and \
+        left_ear['y'] - y_add < left_wrist['y'] < left_shoulder['y'] + y_add and\
+        right_ear['y'] - y_add < right_wrist['y'] < left_shoulder['y'] + y_add:
+        return True
     
     return False
 
