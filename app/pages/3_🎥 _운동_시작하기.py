@@ -474,8 +474,6 @@ def stand_side_crunch(image, landmark_list):
     global left_action
     global right_action
 
-    image_landmark = get_pos(image, landmark_list)
-
     # angle_list = (26, 28, 24, 25, 23, 27)
     # hand_list = (14, 16, 12, 13, 15, 11)
 
