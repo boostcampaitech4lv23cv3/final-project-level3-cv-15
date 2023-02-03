@@ -46,7 +46,7 @@ with col2:
     # --- Signup Page
     st.title("SIGN UP")
 
-    login = st.form("signup form")
+    login = st.form("signup form", clear_on_submit=True)
     userid = login.text_input("User id")
     pw = login.text_input("Password", type='password')
     nickname = login.text_input("Nick name")
@@ -70,4 +70,3 @@ with col2:
             '''
             components.html(html_string)
             time.sleep(0.3)
-            st.experimental_rerun()
