@@ -533,17 +533,19 @@ def push_up():
     global min_right
     global min_left
 
-    point_used = (14,16,12,11,13,15)
+    point_used = (14,16,12,11,13,15, 26,28,24,25,23,27)
     for point in point_used:
         if temp_dict[point]['x'] == -10:
             return
             
     angle_order = (((14, 16), (14, 12)), ((13, 15), (13, 11)))
+    angle_order2 = (((26, 28), (26, 24)), ((25, 23), (25, 27)))
 
     right_angle, left_angle = find_angles(angle_order, 2, default_angles=[180,180])
+    right_knee_angle, left_knee_angle = find_angles(angle_order2, 2, default_angles=[90, 90])
 
     if right_action and left_action:
-        if right_angle > 150 and left_angle > 150:
+        if right_angle > 150 and right_knee_angle > 160:
             right_action = False
             left_action = False
             # score = min_left + min_right + min_rdistance + min_ldistance
@@ -559,10 +561,10 @@ def push_up():
             min_right = 180
             min_left = 180
     
-    if left_angle < 120 and right_angle < 120:
+    if right_angle < 120 and right_knee_angle > 160:
         left_action = True
         right_action = True
-        min_left = min(min_left, left_angle)
+        min_right = min(min_right, right_angle)
 
 def check_state():
     """
