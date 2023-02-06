@@ -72,8 +72,8 @@ if st.sidebar.button("Logout"):
     switch_page("frontend")
 
 
-if ex_num == 2:
-    st.title("카메라가 측면을 향하게 해주세요.")
+if ex_num == 2 or ex_num == 5:
+    st.title("카메라가 몸의 오른쪽을 향하게 해주세요.")
 else:
     st.title("카메라가 정면을 향하게 해주세요.")
 
